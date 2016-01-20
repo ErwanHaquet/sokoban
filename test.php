@@ -73,4 +73,28 @@ class Test extends PHPUnit_Framework_TestCase
 		$this->assertEquals(true, $plateau->isFini());
 	}
 
+	public function testCaisseCaisse()
+	{
+		$plateau = new Plateau([[0,0],[1,0],[2,0],[3,0],[4,0],
+								[0,1],[4,1],
+								[0,2],[1,2],[2,2],[3,2],[4,2]], [1,1], [[2,1], [3,1]], null);
+		$this->assertEquals([], $plateau->ouAller());
+	}
+
+	public function testCaisseMur()
+	{
+		$plateau = new Plateau([[0,0],[1,0],[2,0],[3,0],[4,0],
+								[0,1],[3,1],[4,1],
+								[0,2],[1,2],[2,2],[3,2],[4,2]], [1,1], [[2,1]], null);
+		$this->assertEquals([], $plateau->ouAller());
+	}
+
+	public function testCaisseVide()
+	{
+		$plateau = new Plateau([[0,0],[1,0],[2,0],[3,0],[4,0],
+								[0,1],[4,1],
+								[0,2],[1,2],[2,2],[3,2],[4,2]], [1,1], [[2,1]], null);
+		$this->assertEquals(['droite'], $plateau->ouAller());
+	}
+
 }
