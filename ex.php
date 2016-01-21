@@ -19,8 +19,11 @@ class Plateau {
 	public $cases;
 	public $perso;
 	public $caisses;
+	public $movements;
+	public $impasses;
 
 	public function __construct($murs, $perso, $caisses, $cibles){
+		$this->impasses = [];
 		$this->perso = $perso;
 		$this->caisses = $caisses;
 		$this->largeur = 0;
@@ -51,9 +54,7 @@ class Plateau {
 
 	// renvoi un tableau de déplacement possible
 	public function ouAller(){
-		$result = [];
-		$haut = []; $droite = []; $bas = []; $gauche = [];
-		$dir = [];
+		$result = []; $haut = []; $droite = []; $bas = []; $gauche = []; $dir = [];
 
 		// Assigne les positions des cases utilisées pour determiner les deplacements
 		// $i est la position du perso, $i[1] la position aprés deplacement, $i[2] la position 1 case aprés le deplacement
@@ -79,12 +80,10 @@ class Plateau {
 						$afterIsCaisse = true;
 					}
 				}
-
 				if ($depIsCaisse == true){
 					if ($this->getType($value[2][0], $value[2][1]) != 'mur' && $afterIsCaisse == false){
 						$result[] = $key;
 					}
-
 				}else {
 					$result[] = $key;
 				}
@@ -122,6 +121,86 @@ class Plateau {
 		}
 		return true;
 	}
-	
+
+	// Deplace le personnage et les caisses en fonction des deplacements
+	public function moove($dir){
+
+		if ($dir == 'haut') {
+			$dest = [$this->perso[0], $this->perso[1]-1];
+			$destPlus1 = [$this->perso[0], $this->perso[1]-2];
+		}
+		elseif ($dir == 'droite') {
+			$dest = [$this->perso[0]+1, $this->perso[1]];
+			$destPlus1 = [$this->perso[0]+2, $this->perso[1]];
+		}
+		elseif ($dir == 'bas') {
+			$dest = [$this->perso[0], $this->perso[1]+1];
+			$destPlus1 = [$this->perso[0], $this->perso[1]+2];
+		}
+		elseif ($dir == 'gauche') {
+			$dest = [$this->perso[0]-1, $this->perso[1]];
+			$destPlus1 = [$this->perso[0]-2, $this->perso[1]];
+		}
+		else { return 'Mauvaise direction'; }
+
+		// Mise à jour de la position du perso
+		$this->perso = $dest;
+
+		// Mise à jour de la position des caisses
+		for($i = 0; $i < count($this->caisses); $i++)
+		{
+			if ($this->caisses[$i][0] == $dest[0] && $this->caisses[$i][1] == $dest[1]) {
+				$this->caisses[$i] = $destPlus1;
+			}
+		}
+
+		$this->movements[] = $dir;
+	}
+
+	public function inverse($value){
+		if ($value == 'haut'){ return 'bas';}
+		elseif ($value == 'bas'){ return 'haut';}
+		elseif ($value == 'droite'){ return 'gauche';}
+		elseif ($value == 'gauche'){ return 'droite';}
+	}
+
+	public function parcourir($lastDir = null){
+		$possibilites = $this->ouAller();
+
+		foreach ($this->impasses as $impasse) {
+			if ($this->perso == $impasse[0]){
+				if(($key = array_search($impasse[1], $possibilites)) !== false) {
+					    unset($possibilites[$key]);
+				}
+			}
+		}
+
+
+		if(($key = array_search($this->inverse($lastDir), $possibilites)) !== false) {
+			unset($possibilites[$key]);
+		}
+
+
+		foreach ($possibilites as $key => $possibilite){
+			$this->moove($possibilite);
+			if ($this->isFini()){
+				$result = $this->movements;
+				//var_dump($result);
+				return $result;
+			};
+
+			// NE FONCTIONNE PAS A REVOIR
+			//if (!empty($this->ouAller)){
+			//	$this->moove($this->inverse($possibilite));
+			//	$this->impasses = [$this->perso, $possibilite];
+			//
+			//}
+			$this->parcourir($possibilite);
+		}
+
+	}
+
 }
+
+
 ?>

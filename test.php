@@ -97,4 +97,37 @@ class Test extends PHPUnit_Framework_TestCase
 		$this->assertEquals(['droite'], $plateau->ouAller());
 	}
 
+	public function testSimpleMoove()
+	{
+		$plateau = new Plateau([[0,0],[1,0],[2,0],[3,0],[4,0],
+								[0,1],[4,1],
+								[0,2],[1,2],[2,2],[3,2],[4,2]], [1,1], null, null);
+		$plateau->moove('droite');
+		$this->assertEquals([2,1], $plateau->perso);
+	}
+
+	public function testSimpleMoove2(){
+		$plateau = new Plateau([[0,0],[1,0],[2,0],[3,0],[4,0],
+								[0,1],[4,1],
+								[0,2],[1,2],[2,2],[3,2],[4,2]], [1,1], [[2,1]], [[3,1]]);
+		$this->assertEquals(false, $plateau->isFini());
+		$plateau->moove('droite');
+		$this->assertEquals(true, $plateau->isFini());
+	}
+
+	public function testSimpleResolve(){
+		$plateau = new Plateau([[0,0],[1,0],[2,0],[3,0],[4,0],
+								[0,1],[4,1],
+								[0,2],[1,2],[2,2],[3,2],[4,2]], [1,1], [[2,1]], [[3,1]]);
+		$this->assertEquals(['droite'], $plateau->parcourir());
+	}
+
+	public function testResolve(){
+		$plateau = new Plateau([[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],
+								[0,1],[5,1],
+								[0,2],[1,2],[2,2],[3,2],[4,2],[5,2]], 
+								[1,1], [[2,1]], [[4,1]]);
+		$this->assertEquals(['droite', 'droite'], $plateau->parcourir());
+	}
+
 }
